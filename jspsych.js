@@ -1889,7 +1889,7 @@ jsPsych.pluginAPI = (function() {
   }
 
   module.getKeyboardResponse = function(parameters) {
-    //parameters are: callback_function, valid_responses, rt_method, persist, audio_context, audio_context_start_time, allow_held_key?
+    //parameters are: callback_function, valid_responses, rt_method, persist, audio_context, audio_context_start_time, allow_held_key, prevent_default
 
     parameters.rt_method = (typeof parameters.rt_method === 'undefined') ? 'performance' : parameters.rt_method;
     if (parameters.rt_method != 'performance' && parameters.rt_method != 'audio') {
@@ -1946,8 +1946,11 @@ jsPsych.pluginAPI = (function() {
 
       if (valid_response) {
         // if this is a valid response, then we don't want the key event to trigger other actions
-        // like scrolling via the spacebar.
-        e.preventDefault();
+        // like scrolling via the spacebar, unless explicitly requested by the keyboard listener
+        prevent_default = (typeof parameters.prevent_default === 'undefined') ? true : parameters.prevent_default;
+        if (prevent_default) {
+          e.preventDefault();
+        }
 
         parameters.callback_function({
           key: e.keyCode,
